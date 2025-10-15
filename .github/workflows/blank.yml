@@ -12,10 +12,7 @@ jobs:
         run: pwd
       - name: Checkout
         uses: actions/checkout@v5.0.0
-      - name: read the values form jsone
-        run: |
-            python -c "import json; data=json.load(open('config.json')); 
-            print(f'ENVIRONMENT={data[\"environment\"]}\\nAPP_NAME={data[\"app_name\"]}\\nREGION={data[\"region\"]}')" 
+     
       - name: execute the python script
         run: |
            ls -al
