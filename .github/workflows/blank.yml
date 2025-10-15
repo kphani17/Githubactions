@@ -10,3 +10,6 @@ jobs:
         run: echo "disply the tasks"
       - name: execute the shell commands
         run: pwd
+      - name: execute the python script
+        run: |
+           python ../../abcd.py
