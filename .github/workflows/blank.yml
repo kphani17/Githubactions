@@ -10,6 +10,8 @@ jobs:
         run: echo "disply the tasks"
       - name: execute the shell commands
         run: pwd
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
       - name: execute the python script
         run: |
            ls -al
