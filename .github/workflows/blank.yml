@@ -1,5 +1,5 @@
 name: "First Workflow"
-on: "watch"
+#on: "watch"
 jobs: 
   first-job:
     runs-on: ubuntu-latest
