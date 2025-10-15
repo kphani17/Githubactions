@@ -12,4 +12,6 @@ jobs:
         run: pwd
       - name: execute the python script
         run: |
-           python ../../abcd.py
+           ls -al
+           pwd
+           python abcd.py
