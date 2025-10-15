@@ -15,7 +15,7 @@ jobs:
       - name: read the values form jsone
         run: |
             python -c "import json; data=json.load(open('config.json')); 
-            print(f'ENVIRONMENT={data[\"environment\"]}\\nAPP_NAME={data[\"app_name\"]}\\nVERSION={data[\"version\"]}') " >> $GITHUB_ENV
+            print(f'ENVIRONMENT={data[\"environment\"]}\\nAPP_NAME={data[\"app_name\"]}\\nREGION={data[\"region\"]}') " >> $GITHUB_ENV
       - name: execute the python script
         run: |
            ls -al
