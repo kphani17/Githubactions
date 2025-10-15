@@ -1,4 +1,10 @@
 import json
-print('Hello! all, This is python script')
-data = json.load(open('config.json'))
-print(f'ENVIRONMENT={data[\"environment\"]}\\nAPP_NAME={data[\"app_name\"]}\\nREGION={data[\"region\"]}')
+
+print('Hello all, this is Python script!')
+
+with open('config.json') as f:
+    data = json.load(f)
+
+print(f"ENVIRONMENT={data['environment']}")
+print(f"APP_NAME={data['app_name']}")
+print(f"REGION={data['region']}")
