@@ -1,5 +1,5 @@
 name: "First Workflow"
-on: workflow_dispath
+on: "watch"
 jobs: 
   first-job:
     runs-on: ubuntu-latest
