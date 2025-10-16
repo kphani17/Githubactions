@@ -1,0 +1,87 @@
+name: Auto Create PR from Issue and Add to Project
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  auto-create-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Branch Details
+        id: extract
+        run: |
+          echo "Parsing issue body..."
+          echo "${{ github.event.issue.body }}" > issue_body.txt
+
+          BASE=$(grep -i "Base Branch" issue_body.txt | awk -F':' '{print $2}' | xargs)
+          TARGET=$(grep -i "Target Branch" issue_body.txt | awk -F':' '{print $2}' | xargs)
+          DESC=$(grep -i "Description" issue_body.txt | cut -d':' -f2- | xargs)
+
+          echo "Base branch: $BASE"
+          echo "Target branch: $TARGET"
+          echo "Description: $DESC"
+
+          echo "base_branch=$BASE" >> $GITHUB_OUTPUT
+          echo "target_branch=$TARGET" >> $GITHUB_OUTPUT
+          echo "description=$DESC" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ steps.extract.outputs.base_branch }}
+          branch: ${{ steps.extract.outputs.target_branch }}
+          title: "Auto PR from Issue #${{ github.event.issue.number }}"
+          body: |
+            This PR was automatically created from issue #${{ github.event.issue.number }}.
+            **Description:** ${{ steps.extract.outputs.description }}
+            ---
+            🔹 Base Branch: `${{ steps.extract.outputs.base_branch }}`
+            🔹 Target Branch: `${{ steps.extract.outputs.target_branch }}`
+
+      - name: Add PR to GitHub Project (v2)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_ID: PVT_kwDOAAABBc4AEg  # 🔁 Replace with your real Project ID
+        run: |
+          echo "Fetching latest PR ID..."
+          PR_ID=$(gh api graphql -f query='
+          {
+            repository(owner: "${{ github.repository_owner }}", name: "'${{ github.event.repository.name }}'") {
+              pullRequests(last: 1, states: OPEN) {
+                nodes {
+                  id
+                  title
+                }
+              }
+            }
+          }' --jq '.data.repository.pullRequests.nodes[0].id')
+
+          echo "Adding PR ID: $PR_ID to Project: $PROJECT_ID"
+
+          gh api graphql -f query='
+          mutation($project:ID!, $pr:ID!) {
+            addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
+              item {
+                id
+              }
+            }
+          }' -F project=$PROJECT_ID -F pr=$PR_ID
+
+      - name: Comment on Issue
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ✅ Pull Request created successfully from this issue.
+            - **Base Branch:** `${{ steps.extract.outputs.base_branch }}`
+            - **Target Branch:** `${{ steps.extract.outputs.target_branch }}`
+            - **PR Title:** Auto PR from Issue #${{ github.event.issue.number }}
+            - Will be auto-added to your Project Board.
