@@ -1,0 +1,5 @@
+{
+  "environment": "production",
+  "region": "eastus",
+  "app_name": "mywebapp"
+}
